@@ -134,6 +134,7 @@ updated_at
 **The streaming processor tracks processed files and terminates after a quiet period with no new files.**
 
 ## Docker Build
+
 Build the image:
 docker build -t nedbank-pipeline .
 
@@ -175,6 +176,9 @@ docker run --rm `
 
 ---
 ## Notes
+```
+
+---
 Source data is not committed to this repository.
 Generated output data is not committed to this repository.
 The scoring system mounts /data/input, /data/config, and /data/stream at runtime.
