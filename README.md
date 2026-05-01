@@ -46,21 +46,27 @@ The solution is designed to run inside the required Docker interface and write D
 
 ---
 ** The batch pipeline processes the mounted input files:
-
+```text
 /data/input/accounts.csv
 /data/input/customers.csv
 /data/input/transactions.jsonl
+```
 
+---
 ## Bronze Layer
 pipeline/ingest.py reads all three source datasets and writes raw Delta tables with an added ingestion_timestamp.
 
 ## Output:
+```text
 /data/output/bronze/accounts/
 /data/output/bronze/customers/
 /data/output/bronze/transactions/
 
+```
 
+---
 ## Silver Layer
+```text
 pipeline/transform.py reads Bronze tables and applies:
 Deduplication on natural keys
 Type casting
@@ -69,59 +75,89 @@ Currency normalisation
 Safe handling of missing merchant_subcategory
 Data quality flagging
 Exclusion/quarantine rules for invalid records
+```
 
+---
 ## Output:
+```text
 /data/output/silver/accounts/
 /data/output/silver/customers/
 /data/output/silver/transactions/
+```
 
+---
 ## Gold Layer
+```text
 pipeline/provision.py provisions the dimensional model:
 /data/output/gold/dim_accounts/
 /data/output/gold/dim_customers/
 /data/output/gold/fact_transactions/
+```
 
+---
 **The Gold layer includes stable surrogate keys, resolved account/customer relationships, derived age_band, and a Stage 2-compatible fact_transactions schema**
 
 **Data Quality**
+```text
 Data quality rules are externalised in:
 config/dq_rules.yaml
+```
 
+---
 ## The pipeline detects and handles the six required DQ issue categories:
+```text
 1.DUPLICATE_DEDUPED
 2.ORPHANED_ACCOUNT
 3.TYPE_MISMATCH
 4.DATE_FORMAT
 5.CURRENCY_VARIANT
 6.NULL_REQUIRED
+```
 
+---
+```text
 The DQ report is written to:
 /data/output/dq_report.json
+```
 
+---
 ## The report includes:
+```text
 Source record counts
 Encountered data quality issues
 Handling actions
 Gold layer record counts
 Execution duration
+```
 
+---
 ## stage 3 Streaming Extension
-**The Stage 3 extension processes micro-batch JSONL transaction files from:**
+```text
+The Stage 3 extension processes micro-batch JSONL transaction files from:
 /data/stream/
+```
 
+---
 **pipeline/stream_ingest.py processes stream files in filename order and writes two Delta tables:**
+```text
 /data/output/stream_gold/current_balances/
 /data/output/stream_gold/recent_transactions/
+```
 
--current_balances
+---
+current_balances
+```text
 Maintains one row per account_id
 Fields:
 account_id
 current_balance
 last_transaction_timestamp
 updated_at
+```
 
--recent_transactions
+---
+recent_transactions
+```text
 Maintains the 50 most recent transactions per account.
 Fields:
 account_id
@@ -131,6 +167,9 @@ amount
 transaction_type
 channel
 updated_at
+```
+
+---
 **The streaming processor tracks processed files and terminates after a quiet period with no new files.**
 
 ## Docker Build
@@ -139,14 +178,18 @@ Build the image:
 docker build -t nedbank-pipeline .
 
 ## Docker Run
+```text
 Run using the challenge Docker contract:
 docker run --rm \
   -v /path/to/data:/data \
   --memory=2g \
   --cpus="2" \
   nedbank-pipeline
+```
 
+---
 **On Windows PowerShell:**
+
 docker run --rm `
   -v ${PWD}/data:/data `
   --memory=2g `
@@ -179,8 +222,6 @@ docker run --rm `
 ```
 
 ---
-Source data is not committed to this repository.
-Generated output data is not committed to this repository.
 The scoring system mounts /data/input, /data/config, and /data/stream at runtime.
 The pipeline is non-interactive and exits with code 0 on successful completion.
 Bronze, Silver, Gold, and Stream Gold outputs are distinct and separable.
