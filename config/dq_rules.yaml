@@ -1,0 +1,93 @@
+# ============================================================
+# Data Quality Rules
+# Stage 2+
+# ============================================================
+
+null_checks:
+  transactions:
+    required_fields:
+      - transaction_id
+      - account_id
+      - transaction_date
+      - amount
+      - transaction_type
+      - currency
+      - channel
+    dq_flag: NULL_REQUIRED
+
+type_checks:
+  transactions:
+    amount:
+      expected_type: decimal
+      dq_flag: TYPE_MISMATCH
+    transaction_date:
+      expected_type: date
+      dq_flag: DATE_FORMAT
+    transaction_timestamp:
+      expected_type: timestamp
+      dq_flag: DATE_FORMAT
+
+domain_checks:
+  transaction_type:
+    allowed:
+      - DEBIT
+      - CREDIT
+      - FEE
+      - REVERSAL
+    dq_flag: TYPE_MISMATCH
+
+  channel:
+    allowed:
+      - POS
+      - APP
+      - ATM
+      - EFT
+      - USSD
+      - INTERNAL
+    dq_flag: TYPE_MISMATCH
+
+currency_normalisation:
+  source_field: currency
+  target_value: ZAR
+  accepted_variants:
+    - ZAR
+    - R
+    - RAND
+    - RANDS
+    - 710
+  dq_flag: CURRENCY_VARIANT
+
+date_format_checks:
+  transactions:
+    fields:
+      - transaction_date
+    accepted_formats:
+      - yyyy-MM-dd
+      - dd/MM/yyyy
+      - epoch_seconds
+      - epoch_milliseconds
+    dq_flag: DATE_FORMAT
+
+duplicate_checks:
+  transactions:
+    natural_key: transaction_id
+    dq_flag: DUPLICATE_DEDUPED
+    handling_action: DEDUPLICATED_KEEP_FIRST
+
+referential_integrity:
+  transactions:
+    field: account_id
+    reference_table: accounts
+    reference_field: account_id
+    dq_flag: ORPHANED_ACCOUNT
+
+dq_report:
+  output_path: /data/output/dq_report.json
+  schema: nedbank-de-challenge/dq-report/v1
+  required_issue_codes:
+    - DUPLICATE_DEDUPED
+    - ORPHANED_ACCOUNT
+    - TYPE_MISMATCH
+    - DATE_FORMAT
+    - CURRENCY_VARIANT
+    - NULL_REQUIRED

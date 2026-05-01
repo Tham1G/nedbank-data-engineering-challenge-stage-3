@@ -1,0 +1,21 @@
+
+paths:
+  input:
+    accounts: /data/input/accounts.csv
+    customers: /data/input/customers.csv
+    transactions: /data/input/transactions.jsonl
+
+  bronze:
+    accounts: /data/output/bronze/accounts
+    customers: /data/output/bronze/customers
+    transactions: /data/output/bronze/transactions
+
+  silver:
+    accounts: /data/output/silver/accounts
+    customers: /data/output/silver/customers
+    transactions: /data/output/silver/transactions
+
+  gold:
+    dim_customers: /data/output/gold/dim_customers
+    dim_accounts: /data/output/gold/dim_accounts
+    fact_transactions: /data/output/gold/fact_transactions
