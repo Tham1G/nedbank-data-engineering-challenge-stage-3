@@ -17,7 +17,7 @@ The solution is designed to run inside the required Docker interface and write D
 
 ## Repository Structure
 
-
+```text
 .
 ├── Dockerfile
 ├── requirements.txt
@@ -42,7 +42,9 @@ The solution is designed to run inside the required Docker interface and write D
 │   └── run_all.py
 └── stream/
     └── README.md
+```
 
+---
 ** The batch pipeline processes the mounted input files:
 
 /data/input/accounts.csv
@@ -151,6 +153,7 @@ docker run --rm `
   nedbank-pipeline
 
 **Expected Outputs:**
+```text
 /data/output/
 ├── bronze/
 │   ├── accounts/
@@ -168,7 +171,9 @@ docker run --rm `
 │   ├── current_balances/
 │   └── recent_transactions/
 └── dq_report.json
-  
+  ```
+
+---
 ## Notes
 Source data is not committed to this repository.
 Generated output data is not committed to this repository.
